@@ -100,37 +100,72 @@ void rotate(mesh &m, float theta, float dt) {
   }
 }
 
-void render(mesh m) {
+void projectTri(triangle &i, triangle &o) {
   mat4x4 matProj = newProjMat();
+  MultiplyMatrixVector(i.p[0], o.p[0], matProj);
+  MultiplyMatrixVector(i.p[1], o.p[1], matProj);
+  MultiplyMatrixVector(i.p[2], o.p[2], matProj);
+}
 
+void translateTriZ(triangle &i, triangle &o, float offset) {
+  o = i;
+  o.p[0].z = i.p[0].z + 3.0f;
+  o.p[1].z = i.p[1].z + 3.0f;
+  o.p[2].z = i.p[2].z + 3.0f;
+}
+
+void scaleToViewTri(triangle &tri, float screenWidth, float screenHeight) {
+  tri.p[0].x += 1.0f;
+  tri.p[0].y += 1.0f;
+  tri.p[1].x += 1.0f;
+  tri.p[1].y += 1.0f;
+  tri.p[2].x += 1.0f;
+  tri.p[2].y += 1.0f;
+  tri.p[0].x *= 0.5f * screenWidth;
+  tri.p[0].y *= 0.5f * screenHeight;
+  tri.p[1].x *= 0.5f * screenWidth;
+  tri.p[1].y *= 0.5f * screenHeight;
+  tri.p[2].x *= 0.5f * screenWidth;
+  tri.p[2].y *= 0.5f * screenHeight;
+}
+
+vec3d getSurfaceNormal(triangle &tri) {
+  vec3d surfaceNormal, line1, line2;
+  line1.x = tri.p[1].x - tri.p[0].x;
+  line1.y = tri.p[1].y - tri.p[0].y;
+  line1.z = tri.p[1].z - tri.p[0].z;
+
+  line2.x = tri.p[2].x - tri.p[0].x;
+  line2.y = tri.p[2].y - tri.p[0].y;
+  line2.z = tri.p[2].z - tri.p[0].z;
+
+  surfaceNormal.x = line1.y * line2.z - line1.z * line2.y;
+  surfaceNormal.y = line1.z * line2.x - line1.x * line2.z;
+  surfaceNormal.z = line1.x * line2.y - line1.y * line2.x;
+
+  float len = sqrtf(surfaceNormal.x * surfaceNormal.x +
+                    surfaceNormal.y * surfaceNormal.y +
+                    surfaceNormal.z * surfaceNormal.z);
+  surfaceNormal.x /= len;
+  surfaceNormal.y /= len;
+  surfaceNormal.z /= len;
+  return surfaceNormal;
+}
+
+void drawTriangle(triangle &tri) {
+  DrawTriangleLines({tri.p[0].x, tri.p[0].y}, {tri.p[1].x, tri.p[1].y},
+                    {tri.p[2].x, tri.p[2].y}, WHITE);
+}
+
+void render(mesh m) {
   for (auto tri : m.tris) {
     triangle triProjected, triTranslated;
-    // Offset into the screen
-    triTranslated = tri;
-    triTranslated.p[0].z = tri.p[0].z + 3.0f;
-    triTranslated.p[1].z = tri.p[1].z + 3.0f;
-    triTranslated.p[2].z = tri.p[2].z + 3.0f;
-
-    MultiplyMatrixVector(triTranslated.p[0], triProjected.p[0], matProj);
-    MultiplyMatrixVector(triTranslated.p[1], triProjected.p[1], matProj);
-    MultiplyMatrixVector(triTranslated.p[2], triProjected.p[2], matProj);
-
-    // Scale into view
-    triProjected.p[0].x += 1.0f;
-    triProjected.p[0].y += 1.0f;
-    triProjected.p[1].x += 1.0f;
-    triProjected.p[1].y += 1.0f;
-    triProjected.p[2].x += 1.0f;
-    triProjected.p[2].y += 1.0f;
-    triProjected.p[0].x *= 0.5f * (float)GetScreenWidth();
-    triProjected.p[0].y *= 0.5f * (float)GetScreenHeight();
-    triProjected.p[1].x *= 0.5f * (float)GetScreenWidth();
-    triProjected.p[1].y *= 0.5f * (float)GetScreenHeight();
-    triProjected.p[2].x *= 0.5f * (float)GetScreenWidth();
-    triProjected.p[2].y *= 0.5f * (float)GetScreenHeight();
-
-    DrawTriangleLines({triProjected.p[0].x, triProjected.p[0].y},
-                      {triProjected.p[1].x, triProjected.p[1].y},
-                      {triProjected.p[2].x, triProjected.p[2].y}, WHITE);
+    translateTriZ(tri, triTranslated, 3.0f);
+    vec3d surfaceNormal = getSurfaceNormal(triTranslated);
+    if (surfaceNormal.z < 0) {
+      projectTri(triTranslated, triProjected);
+      scaleToViewTri(triProjected, GetScreenWidth(), GetScreenHeight());
+      drawTriangle(triProjected);
+    }
   }
 }
