@@ -42,3 +42,18 @@ vec3d crossProduct(vec3d &left, vec3d &right) {
   res.z = left.x * right.y - left.y * right.x;
   return res;
 }
+
+vec3d MultiplyMatrixVector(mat4x4 &m, vec3d &v) {
+  vec3d o;
+  o.x = v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0] + m.m[3][0];
+  o.y = v.x * m.m[0][1] + v.y * m.m[1][1] + v.z * m.m[2][1] + m.m[3][1];
+  o.z = v.x * m.m[0][2] + v.y * m.m[1][2] + v.z * m.m[2][2] + m.m[3][2];
+  float w = v.x * m.m[0][3] + v.y * m.m[1][3] + v.z * m.m[2][3] + m.m[3][3];
+
+  if (w != 0.0f) {
+    o.x = o.x / w;
+    o.y = o.y / w;
+    o.z = o.z / w;
+  }
+  return o;
+}

@@ -24,6 +24,10 @@ struct triangle {
   vec3d getSurfaceNormal();
 };
 
+void projectTri(triangle &i, triangle &o);
+void translateTriZ(triangle &i, triangle &o, float offset);
+void scaleToViewTri(triangle &tri, float screenWidth, float screenHeight);
+
 struct mesh {
   std::vector<triangle> tris;
 
@@ -35,5 +39,12 @@ struct mesh {
 struct mat4x4 {
   float m[4][4] = {0};
 };
+
+mat4x4 matMul(mat4x4 &left, mat4x4 &right);
+mat4x4 newRotMatX(float theta);
+mat4x4 Matrix_MakeRotationY(float theta);
+mat4x4 newRotMatZ(float theta);
+mat4x4 newProjMat();
+vec3d MultiplyMatrixVector(mat4x4 &m, vec3d &v);
 
 #endif // !ENGINE_H

@@ -6,11 +6,11 @@
 
 int main() {
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-  InitWindow(1280, 800, "Hello Raylib");
+  InitWindow(1280, 800, "Engine");
   SearchAndSetResourceDir("resources");
 
   mesh m;
-  std::string objPath = "objects/teapot.obj";
+  std::string objPath = "objects/axis.obj";
   bool success = m.readObjFile(objPath);
   if (!success) {
     std::cout << "Unable to load object from " << objPath;
@@ -24,7 +24,12 @@ int main() {
     BeginDrawing();
     ClearBackground(BLACK);
 
-    m.rotate(1, GetFrameTime());
+    // if (IsKeyDown('A')) camera.x -= 8.0f;
+    // if (IsKeyDown('D')) camera.x += 8.0f;
+    // if (IsKeyDown('W')) camera.y -= 8.0f;
+    // if (IsKeyDown('S')) camera.y += 8.0f;
+
+    // m.rotate(1, GetFrameTime());
     m.render(camera);
 
     EndDrawing();
