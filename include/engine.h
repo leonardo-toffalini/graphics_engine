@@ -10,6 +10,7 @@ struct vec3d {
 
 struct triangle {
   vec3d p[3];
+  Color c;
 };
 
 struct mesh {
@@ -21,7 +22,8 @@ struct mat4x4 {
 };
 
 mesh newCubeMesh();
+bool readObjFile(mesh &o, std::string filePath);
 void rotate(mesh &m, float theta, float dt);
-void render(mesh m);
+void render(mesh &m, vec3d &camera);
 
 #endif // !ENGINE_H
