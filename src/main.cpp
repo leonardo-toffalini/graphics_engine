@@ -15,6 +15,7 @@ int main() {
     BeginDrawing();
     ClearBackground(BLACK);
 
+    rotate(cube, 1, GetFrameTime());
     render(cube);
 
     EndDrawing();

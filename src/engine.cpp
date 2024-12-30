@@ -61,6 +61,45 @@ mat4x4 newProjMat() {
   return matProj;
 }
 
+mat4x4 newRotMatZ(float theta) {
+  mat4x4 matRotZ;
+  matRotZ.m[0][0] = cosf(theta);
+  matRotZ.m[0][1] = sinf(theta);
+  matRotZ.m[1][0] = -sinf(theta);
+  matRotZ.m[1][1] = cosf(theta);
+  matRotZ.m[2][2] = 1;
+  matRotZ.m[3][3] = 1;
+  return matRotZ;
+}
+
+mat4x4 newRotMatX(float theta) {
+  mat4x4 matRotX;
+  matRotX.m[0][0] = 1;
+  matRotX.m[1][1] = cosf(theta * 0.5f);
+  matRotX.m[1][2] = sinf(theta * 0.5f);
+  matRotX.m[2][1] = -sinf(theta * 0.5f);
+  matRotX.m[2][2] = cosf(theta * 0.5f);
+  matRotX.m[3][3] = 1;
+  return matRotX;
+}
+
+void rotate(mesh &m, float theta, float dt) {
+  theta = dt * theta;
+  mat4x4 rotMatZ = newRotMatZ(theta);
+  mat4x4 rotMatX = newRotMatX(theta);
+  for (auto &tri : m.tris) {
+    triangle temp;
+    MultiplyMatrixVector(tri.p[0], temp.p[0], rotMatZ);
+    MultiplyMatrixVector(tri.p[1], temp.p[1], rotMatZ);
+    MultiplyMatrixVector(tri.p[2], temp.p[2], rotMatZ);
+    tri = temp;
+    MultiplyMatrixVector(tri.p[0], temp.p[0], rotMatX);
+    MultiplyMatrixVector(tri.p[1], temp.p[1], rotMatX);
+    MultiplyMatrixVector(tri.p[2], temp.p[2], rotMatX);
+    tri = temp;
+  }
+}
+
 void render(mesh m) {
   mat4x4 matProj = newProjMat();
 

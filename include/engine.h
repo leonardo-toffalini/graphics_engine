@@ -21,6 +21,7 @@ struct mat4x4 {
 };
 
 mesh newCubeMesh();
+void rotate(mesh &m, float theta, float dt);
 void render(mesh m);
 
 #endif // !ENGINE_H
