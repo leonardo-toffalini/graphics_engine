@@ -5,50 +5,34 @@
 #include <strstream>
 #include <vector>
 
-void MultiplyMatrixVector(vec3d &i, vec3d &o, mat4x4 &m) {
-  o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
-  o.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
-  o.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + m.m[3][2];
-  float w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + m.m[3][3];
+vec3d MultiplyMatrixVector(mat4x4 &m, vec3d &v) {
+  vec3d o;
+  o.x = v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0] + m.m[3][0];
+  o.y = v.x * m.m[0][1] + v.y * m.m[1][1] + v.z * m.m[2][1] + m.m[3][1];
+  o.z = v.x * m.m[0][2] + v.y * m.m[1][2] + v.z * m.m[2][2] + m.m[3][2];
+  float w = v.x * m.m[0][3] + v.y * m.m[1][3] + v.z * m.m[2][3] + m.m[3][3];
 
   if (w != 0.0f) {
     o.x = o.x / w;
     o.y = o.y / w;
     o.z = o.z / w;
   }
+  return o;
 }
 
-mesh newCubeMesh() {
-  mesh meshCube;
-  meshCube.tris = {
-      // SOUTH
-      {0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f},
-      {0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f},
-
-      // EAST
-      {1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f},
-      {1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f},
-
-      // NORTH
-      {1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f},
-      {1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f},
-
-      // WEST
-      {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f},
-      {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f},
-
-      // TOP
-      {0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
-      {0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f},
-
-      // BOTTOM
-      {1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f},
-      {1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f},
-  };
-  return meshCube;
+mat4x4 matMul(mat4x4 &left, mat4x4 &right) {
+  mat4x4 res;
+  for (int c = 0; c < 4; c++) {
+    for (int r = 0; r < 4; r++) {
+      for (int i = 0; i < 4; i++){
+          res.m[r][c] += left.m[r][i] * right.m[i][c];
+      }
+    }
+  }
+  return res;
 }
 
-bool readObjFile(mesh &o, std::string filePath) {
+bool mesh::readObjFile(std::string filePath) {
   std::vector<vec3d> verts;
   std::ifstream f(filePath);
   if (!f.is_open())
@@ -72,7 +56,7 @@ bool readObjFile(mesh &o, std::string filePath) {
     if (line[0] == 'f') {
       int face[3];
       s >> temp >> face[0] >> face[1] >> face[2];
-      o.tris.push_back(
+      this->tris.push_back(
           {verts[face[0] - 1], verts[face[1] - 1], verts[face[2] - 1]});
     }
   }
@@ -119,28 +103,29 @@ mat4x4 newRotMatX(float theta) {
   return matRotX;
 }
 
-void rotate(mesh &m, float theta, float dt) {
+void mesh::rotate(float theta, float dt) {
   theta = dt * theta;
   mat4x4 rotMatZ = newRotMatZ(theta);
   mat4x4 rotMatX = newRotMatX(theta);
-  for (auto &tri : m.tris) {
+  mat4x4 rotMat = matMul(rotMatZ, rotMatX);
+  for (auto &tri : this->tris) {
     triangle temp;
-    MultiplyMatrixVector(tri.p[0], temp.p[0], rotMatZ);
-    MultiplyMatrixVector(tri.p[1], temp.p[1], rotMatZ);
-    MultiplyMatrixVector(tri.p[2], temp.p[2], rotMatZ);
+    temp.p[0] = MultiplyMatrixVector(rotMatZ, tri.p[0]);
+    temp.p[1] = MultiplyMatrixVector(rotMatZ, tri.p[1]);
+    temp.p[2] = MultiplyMatrixVector(rotMatZ, tri.p[2]);
     tri = temp;
-    MultiplyMatrixVector(tri.p[0], temp.p[0], rotMatX);
-    MultiplyMatrixVector(tri.p[1], temp.p[1], rotMatX);
-    MultiplyMatrixVector(tri.p[2], temp.p[2], rotMatX);
+    temp.p[0] = MultiplyMatrixVector(rotMatX, tri.p[0]);
+    temp.p[1] = MultiplyMatrixVector(rotMatX, tri.p[1]);
+    temp.p[2] = MultiplyMatrixVector(rotMatX, tri.p[2]);
     tri = temp;
   }
 }
 
 void projectTri(triangle &i, triangle &o) {
   mat4x4 matProj = newProjMat();
-  MultiplyMatrixVector(i.p[0], o.p[0], matProj);
-  MultiplyMatrixVector(i.p[1], o.p[1], matProj);
-  MultiplyMatrixVector(i.p[2], o.p[2], matProj);
+  o.p[0] = MultiplyMatrixVector(matProj, i.p[0]);
+  o.p[1] = MultiplyMatrixVector(matProj, i.p[1]);
+  o.p[2] = MultiplyMatrixVector(matProj, i.p[2]);
 }
 
 void translateTriZ(triangle &i, triangle &o, float offset) {
@@ -165,25 +150,39 @@ void scaleToViewTri(triangle &tri, float screenWidth, float screenHeight) {
   tri.p[2].y *= 0.5f * screenHeight;
 }
 
-float vecNorm(vec3d v) { return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z); }
-
-vec3d vecMinus(vec3d &left, vec3d &right) {
-  return (vec3d){left.x - right.x, left.y - right.y, left.z - right.z};
+float vec3d::norm() {
+  return sqrtf(this->x * this->x + this->y * this->y + this->z * this->z);
 }
 
-vec3d getSurfaceNormal(triangle &tri) {
+vec3d vec3d::operator-(vec3d &right) {
+  return (vec3d){this->x - right.x, this->y - right.y, this->z - right.z};
+}
+
+vec3d vecDiv(vec3d &v, float d) {
+  vec3d res;
+  res.x = v.x / d;
+  res.y = v.y / d;
+  res.z = v.z / d;
+  return res;
+}
+
+vec3d crossProduct(vec3d &left, vec3d &right) {
+  vec3d res;
+  res.x = left.y * right.z - left.z * right.y;
+  res.y = left.z * right.x - left.x * right.z;
+  res.z = left.x * right.y - left.y * right.x;
+  return res;
+}
+
+vec3d triangle::getSurfaceNormal() {
   vec3d surfaceNormal, line1, line2;
-  line1 = vecMinus(tri.p[1], tri.p[0]);
-  line2 = vecMinus(tri.p[2], tri.p[0]);
+  line1 = this->p[1] - this->p[0];
+  line2 = this->p[2] - this->p[0];
 
-  surfaceNormal.x = line1.y * line2.z - line1.z * line2.y;
-  surfaceNormal.y = line1.z * line2.x - line1.x * line2.z;
-  surfaceNormal.z = line1.x * line2.y - line1.y * line2.x;
+  surfaceNormal = crossProduct(line1, line2);
 
-  float len = vecNorm(surfaceNormal);
-  surfaceNormal.x /= len;
-  surfaceNormal.y /= len;
-  surfaceNormal.z /= len;
+  float len = surfaceNormal.norm();
+  surfaceNormal = vecDiv(surfaceNormal, len);
   return surfaceNormal;
 }
 
@@ -207,15 +206,15 @@ void drawTriangleWireFrame(triangle &tri) {
                     {tri.p[2].x, tri.p[2].y}, BLACK);
 }
 
-void render(mesh &m, vec3d &camera) {
+void mesh::render(vec3d &camera) {
   vec3d lightDirection = {0.0f, 0.0f, -1.0f};
   std::vector<triangle> triBuffer;
 
-  for (auto tri : m.tris) {
+  for (auto tri : this->tris) {
     triangle triProjected, triTranslated;
     translateTriZ(tri, triTranslated, 8.0f);
-    vec3d surfaceNormal = getSurfaceNormal(triTranslated);
-    vec3d cameraTriVec = vecMinus(triTranslated.p[0], camera);
+    vec3d surfaceNormal = triTranslated.getSurfaceNormal();
+    vec3d cameraTriVec = triTranslated.p[0] - camera;
     if (dotProduct(surfaceNormal, cameraTriVec) < 0) {
       projectTri(triTranslated, triProjected);
       scaleToViewTri(triProjected, GetScreenWidth(), GetScreenHeight());

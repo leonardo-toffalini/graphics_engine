@@ -11,7 +11,7 @@ int main() {
 
   mesh m;
   std::string objPath = "objects/teapot.obj";
-  bool success = readObjFile(m, objPath);
+  bool success = m.readObjFile(objPath);
   if (!success) {
     std::cout << "Unable to load object from " << objPath;
     exit(1);
@@ -24,8 +24,8 @@ int main() {
     BeginDrawing();
     ClearBackground(BLACK);
 
-    rotate(m, 1, GetFrameTime());
-    render(m, camera);
+    m.rotate(1, GetFrameTime());
+    m.render(camera);
 
     EndDrawing();
   }
