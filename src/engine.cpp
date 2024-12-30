@@ -24,8 +24,8 @@ mat4x4 matMul(mat4x4 &left, mat4x4 &right) {
   mat4x4 res;
   for (int c = 0; c < 4; c++) {
     for (int r = 0; r < 4; r++) {
-      for (int i = 0; i < 4; i++){
-          res.m[r][c] += left.m[r][i] * right.m[i][c];
+      for (int i = 0; i < 4; i++) {
+        res.m[r][c] += left.m[r][i] * right.m[i][c];
       }
     }
   }
@@ -150,30 +150,6 @@ void scaleToViewTri(triangle &tri, float screenWidth, float screenHeight) {
   tri.p[2].y *= 0.5f * screenHeight;
 }
 
-float vec3d::norm() {
-  return sqrtf(this->x * this->x + this->y * this->y + this->z * this->z);
-}
-
-vec3d vec3d::operator-(vec3d &right) {
-  return (vec3d){this->x - right.x, this->y - right.y, this->z - right.z};
-}
-
-vec3d vecDiv(vec3d &v, float d) {
-  vec3d res;
-  res.x = v.x / d;
-  res.y = v.y / d;
-  res.z = v.z / d;
-  return res;
-}
-
-vec3d crossProduct(vec3d &left, vec3d &right) {
-  vec3d res;
-  res.x = left.y * right.z - left.z * right.y;
-  res.y = left.z * right.x - left.x * right.z;
-  res.z = left.x * right.y - left.y * right.x;
-  return res;
-}
-
 vec3d triangle::getSurfaceNormal() {
   vec3d surfaceNormal, line1, line2;
   line1 = this->p[1] - this->p[0];
@@ -182,12 +158,8 @@ vec3d triangle::getSurfaceNormal() {
   surfaceNormal = crossProduct(line1, line2);
 
   float len = surfaceNormal.norm();
-  surfaceNormal = vecDiv(surfaceNormal, len);
+  surfaceNormal = surfaceNormal / len;
   return surfaceNormal;
-}
-
-float dotProduct(vec3d &v, vec3d &u) {
-  return v.x * u.x + v.y * u.y + v.z * u.z;
 }
 
 Color getTriColor(vec3d &surfaceNormal, vec3d &lightDirection) {
