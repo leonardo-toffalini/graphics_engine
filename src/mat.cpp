@@ -1,15 +1,47 @@
 #include "../include/engine.h"
+#include <iostream>
 
-mat4x4 matMul(mat4x4 &left, mat4x4 &right) {
+std::ostream &operator<<(std::ostream &os, const mat4x4 &mat) {
+  os << "matrix:\n";
+  for (int r = 0; r < 4; r++) {
+    os << "\t{";
+    for (int c = 0; c < 4; c++) {
+      os << mat.m[r][c] << " ";
+    }
+    os << "}\n";
+  }
+  return os;
+}
+
+mat4x4 mat4x4::operator*(mat4x4 &right) {
   mat4x4 res;
   for (int c = 0; c < 4; c++) {
     for (int r = 0; r < 4; r++) {
       for (int i = 0; i < 4; i++) {
-        res.m[r][c] += left.m[r][i] * right.m[i][c];
+        res.m[r][c] += this->m[r][i] * right.m[i][c];
       }
     }
   }
   return res;
+}
+
+vec3d mat4x4::operator*(vec3d &v) {
+  vec3d o;
+  o.x = v.x * this->m[0][0] + v.y * this->m[1][0] + v.z * this->m[2][0] +
+        this->m[3][0];
+  o.y = v.x * this->m[0][1] + v.y * this->m[1][1] + v.z * this->m[2][1] +
+        this->m[3][1];
+  o.z = v.x * this->m[0][2] + v.y * this->m[1][2] + v.z * this->m[2][2] +
+        this->m[3][2];
+  float w = v.x * this->m[0][3] + v.y * this->m[1][3] + v.z * this->m[2][3] +
+            this->m[3][3];
+
+  if (w != 0.0f) {
+    o.x = o.x / w;
+    o.y = o.y / w;
+    o.z = o.z / w;
+  }
+  return o;
 }
 
 mat4x4 newRotMatX(float theta) {
@@ -22,7 +54,8 @@ mat4x4 newRotMatX(float theta) {
   matRotX.m[3][3] = 1;
   return matRotX;
 }
-mat4x4 Matrix_MakeRotationY(float theta) {
+
+mat4x4 newRotMatY(float theta) {
   mat4x4 matrix;
   matrix.m[0][0] = cosf(theta);
   matrix.m[0][2] = sinf(theta);
@@ -96,8 +129,8 @@ mat4x4 Matrix_PointAt(vec3d &pos, vec3d &target, vec3d &up) {
   return matrix;
 }
 
-mat4x4 Matrix_QuickInverse(mat4x4 &m) // Only for Rotation/Translation Matrices
-{
+// Only for Rotation/Translation Matrices
+mat4x4 Matrix_QuickInverse(mat4x4 &m) {
   mat4x4 matrix;
   matrix.m[0][0] = m.m[0][0];
   matrix.m[0][1] = m.m[1][0];

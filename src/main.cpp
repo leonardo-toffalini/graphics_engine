@@ -29,7 +29,7 @@ int main() {
     // if (IsKeyDown('W')) camera.y -= 8.0f;
     // if (IsKeyDown('S')) camera.y += 8.0f;
 
-    // m.rotate(1, GetFrameTime());
+    // m.rotate(PI / 4.0f, 0.0f, PI / 8.0f, GetFrameTime());
     m.render(camera);
 
     EndDrawing();
