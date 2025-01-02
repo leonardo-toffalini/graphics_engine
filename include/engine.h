@@ -22,6 +22,7 @@ struct vec3d {
 
 float dotProduct(vec3d &left, vec3d &right);
 vec3d crossProduct(vec3d &left, vec3d &right);
+std::ostream &operator<<(std::ostream &os, const vec3d &vec);
 
 struct triangle {
   vec3d p[3];

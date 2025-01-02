@@ -1,4 +1,10 @@
 #include "../include/engine.h"
+#include <iostream>
+
+std::ostream &operator<<(std::ostream &os, const vec3d &vec) {
+  os << "{" << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << "}";
+  return os;
+}
 
 float vec3d::norm() {
   return sqrtf(this->x * this->x + this->y * this->y + this->z * this->z);

@@ -2,14 +2,10 @@
 #include <iostream>
 
 std::ostream &operator<<(std::ostream &os, const mat4x4 &mat) {
-  os << "matrix:\n";
-  for (int r = 0; r < 4; r++) {
-    os << "\t{";
-    for (int c = 0; c < 4; c++) {
-      os << mat.m[r][c] << " ";
-    }
-    os << "}\n";
-  }
+  os << "{{" << mat.m[0][0] << ", " << mat.m[0][1] << ", " << mat.m[0][2] << ", " << mat.m[0][3] << "},\n";
+  os << "{" << mat.m[1][0] << ", " << mat.m[1][1] << ", " << mat.m[1][2] << ", " << mat.m[1][3] << "},\n";
+  os << "{" << mat.m[2][0] << ", " << mat.m[2][1] << ", " << mat.m[2][2] << ", " << mat.m[2][3] << "},\n";
+  os << "{" << mat.m[3][0] << ", " << mat.m[3][1] << ", " << mat.m[3][2] << ", " << mat.m[3][3] << "}}";
   return os;
 }
 
@@ -103,10 +99,14 @@ mat4x4 Matrix_PointAt(vec3d &pos, vec3d &target, vec3d &up) {
   // Calculate new Up direction
   vec3d a = newForward * dotProduct(up, newForward);
   vec3d newUp = up - a;
-  newUp = newUp.normalise();
+  newUp.normalise();
 
   // New Right direction is easy, its just cross product
   vec3d newRight = crossProduct(newUp, newForward);
+
+  // std::cout << "newRight: " << newRight << "\n";
+  // std::cout << "newUp: " << newUp << "\n";
+  // std::cout << "newForward: " << newForward << "\n";
 
   // Construct Dimensioning and Translation Matrix
   mat4x4 matrix;

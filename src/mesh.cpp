@@ -46,7 +46,8 @@ void mesh::render(vec3d &camera) {
 
   mat4x4 matCamera = Matrix_PointAt(camera, targetVec, upVec);
   mat4x4 matView = Matrix_QuickInverse(matCamera);
-  std::cout << matView << "\n";
+  // std::cout << "matCamera:\n" << matCamera << "\n";
+  // std::cout << "matView:\n" << matView << "\n";
 
   std::vector<triangle> triBuffer;
 
@@ -61,7 +62,7 @@ void mesh::render(vec3d &camera) {
       triViewed.p[1] = matView * triTransformed.p[1];
       triViewed.p[2] = matView * triTransformed.p[2];
       // std::cout << triTransformed << "\n";
-      // std::cout << triViewed << "\n";
+      // std::cout << "triViewed: " << triViewed << "\n";
 
       triProjected = triViewed.project();
       // triProjected = triTransformed.project();
@@ -112,7 +113,7 @@ bool mesh::readObjFile(std::string filePath) {
     }
   }
 
-  this->rotate(3.141592f / 4.0f, 0, 3.141592f,
-               1); // rotate axis to be in correct orientation
+  // rotate axis to be in correct orientation
+  this->rotate(3.141592f / 4.0f, 0, 3.141592f, 1);
   return true;
 }

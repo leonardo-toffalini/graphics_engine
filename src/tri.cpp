@@ -2,13 +2,12 @@
 #include <iostream>
 
 std::ostream &operator<<(std::ostream &os, const triangle &tri) {
-  os << "triangle:\n";
-  os << "\t{" << tri.p[0].x << ", " << tri.p[0].y << ", " << tri.p[0].z
-     << "}\n";
-  os << "\t{" << tri.p[1].x << ", " << tri.p[1].y << ", " << tri.p[1].z
-     << "}\n";
-  os << "\t{" << tri.p[2].x << ", " << tri.p[2].y << ", " << tri.p[2].z
-     << "}\n";
+  os << "{p1: {" << tri.p[0].x << ", " << tri.p[0].y << ", " << tri.p[0].z
+     << "}, ";
+  os << "p2: {" << tri.p[1].x << ", " << tri.p[1].y << ", " << tri.p[1].z
+     << "}, ";
+  os << "p3: {" << tri.p[2].x << ", " << tri.p[2].y << ", " << tri.p[2].z
+     << "}}";
   return os;
 }
 
