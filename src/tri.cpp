@@ -48,9 +48,6 @@ vec3d triangle::getSurfaceNormal() {
   line1 = this->p[1] - this->p[0];
   line2 = this->p[2] - this->p[0];
 
-  surfaceNormal = crossProduct(line1, line2);
-
-  float len = surfaceNormal.norm();
-  surfaceNormal = surfaceNormal / len;
+  surfaceNormal = crossProduct(line1, line2).normalise();
   return surfaceNormal;
 }

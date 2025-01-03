@@ -19,36 +19,21 @@ vec3d vec3d::operator+(vec3d &right) {
 }
 
 vec3d vec3d::operator/(float d) {
-  vec3d res;
-  res.x = this->x / d;
-  res.y = this->y / d;
-  res.z = this->z / d;
-  return res;
+  return (vec3d){this->x / d, this->y / d, this->z / d};
 }
 
 vec3d vec3d::operator*(float c) {
-  vec3d res;
-  res.x = this->x * c;
-  res.y = this->y * c;
-  res.z = this->z * c;
-  return res;
+  return (vec3d){this->x * c, this->y * c, this->z * c};
 }
 
-vec3d vec3d::normalise() {
-  vec3d temp;
-  float len = this->norm();
-  temp = temp / len;
-  return temp;
-}
+vec3d vec3d::normalise() { return (vec3d) * this / this->norm(); }
 
 float dotProduct(vec3d &left, vec3d &right) {
   return left.x * right.x + left.y * right.y + left.z * right.z;
 }
 
 vec3d crossProduct(vec3d &left, vec3d &right) {
-  vec3d res;
-  res.x = left.y * right.z - left.z * right.y;
-  res.y = left.z * right.x - left.x * right.z;
-  res.z = left.x * right.y - left.y * right.x;
-  return res;
+  return (vec3d){left.y * right.z - left.z * right.y,
+                 left.z * right.x - left.x * right.z,
+                 left.x * right.y - left.y * right.x};
 }

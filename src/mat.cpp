@@ -94,12 +94,12 @@ mat4x4 newProjMat() {
 mat4x4 Matrix_PointAt(vec3d &pos, vec3d &target, vec3d &up) {
   // Calculate new forward direction
   vec3d newForward = target - pos;
-  newForward.normalise();
+  newForward = newForward.normalise();
 
   // Calculate new Up direction
   vec3d a = newForward * dotProduct(up, newForward);
   vec3d newUp = up - a;
-  newUp.normalise();
+  newUp = newUp.normalise();
 
   // New Right direction is easy, its just cross product
   vec3d newRight = crossProduct(newUp, newForward);

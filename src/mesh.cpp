@@ -4,9 +4,14 @@
 #include <iostream>
 #include <strstream>
 
-Color getTriColor(vec3d &surfaceNormal, vec3d &lightDirection) {
+#define CLIP(x) (x > 0 ? x : 0)
+
+Color getColor(vec3d &surfaceNormal, vec3d &lightDirection) {
   float dp = dotProduct(surfaceNormal, lightDirection);
+  unsigned char ambient = 20;
+  // 50 is the ambient light
   unsigned char g = 255 * dp;
+  g = CLIP(g) + ambient;
   return (Color){g, g, g, 255};
 }
 
@@ -38,10 +43,10 @@ void mesh::rotate(float alpha, float beta, float gamma, float dt) {
 }
 
 void mesh::render(vec3d &camera) {
-  vec3d lightDirection = {0.0f, 0.0f, -1.0f};
-
+  vec3d lightDirection = {0.0f, 1.0f, -1.0f};
   vec3d upVec = {0, 1, 0};
   vec3d lookDir = {0, 0, 1};
+  // vec3d lightDirection = (vec3d){0, 0, 0} - lookDir;
   vec3d targetVec = camera + lookDir;
 
   mat4x4 matCamera = Matrix_PointAt(camera, targetVec, upVec);
@@ -58,16 +63,16 @@ void mesh::render(vec3d &camera) {
     vec3d surfaceNormal = triTransformed.getSurfaceNormal();
     vec3d cameraRay = triTransformed.p[0] - camera;
     if (dotProduct(surfaceNormal, cameraRay) < 0) {
+      // std::cout << triTransformed << "\n";
+      // std::cout << "triViewed: " << triViewed << "\n";
       triViewed.p[0] = matView * triTransformed.p[0];
       triViewed.p[1] = matView * triTransformed.p[1];
       triViewed.p[2] = matView * triTransformed.p[2];
-      // std::cout << triTransformed << "\n";
-      // std::cout << "triViewed: " << triViewed << "\n";
 
       triProjected = triViewed.project();
       // triProjected = triTransformed.project();
       triProjected.scaleToView(GetScreenWidth(), GetScreenHeight());
-      Color c = getTriColor(surfaceNormal, lightDirection);
+      Color c = getColor(surfaceNormal, lightDirection);
       triProjected.c = c;
       triBuffer.push_back(triProjected);
     }

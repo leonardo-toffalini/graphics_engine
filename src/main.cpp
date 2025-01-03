@@ -24,10 +24,11 @@ int main() {
     BeginDrawing();
     ClearBackground(BLACK);
 
-    // if (IsKeyDown('A')) camera.x -= 8.0f;
-    // if (IsKeyDown('D')) camera.x += 8.0f;
-    // if (IsKeyDown('W')) camera.y -= 8.0f;
-    // if (IsKeyDown('S')) camera.y += 8.0f;
+
+    if (IsKeyDown('A')) camera.x -= 8.0f * GetFrameTime();
+    if (IsKeyDown('D')) camera.x += 8.0f * GetFrameTime();
+    if (IsKeyDown('W')) camera.y -= 8.0f * GetFrameTime();
+    if (IsKeyDown('S')) camera.y += 8.0f * GetFrameTime();
 
     // m.rotate(PI / 4.0f, 0.0f, PI / 8.0f, GetFrameTime());
     m.render(camera);
